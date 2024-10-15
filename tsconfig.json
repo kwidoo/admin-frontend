@@ -1,0 +1,59 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "target": "es2022",
+    "verbatimModuleSyntax": false,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "useDefineForClassFields": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "_components/*": [
+        "./src/components/*"
+      ]
+    },
+    /* Linting */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    /* Strictness */
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "moduleResolution": "bundler",
+    "module": "esnext",
+    "noEmit": true,
+    "lib": [
+      "es2020",
+      "dom"
+    ],
+    "types": [
+      "vite/client"
+    ]
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "vite.config.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
+}

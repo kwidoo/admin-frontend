@@ -1,0 +1,174 @@
+kind: pipeline
+type: docker
+name: build
+
+steps:
+  - name: build frontend
+    image: node:21
+    commands:
+      - chmod +x build.sh
+      - ./build.sh
+
+  - name: build docker image
+    image: plugins/docker
+    settings:
+      repo: registry.eu-nl.com/joyou_admin
+      tags:
+        - ${DRONE_COMMIT_SHA}
+    volumes:
+      - name: docker_sock
+        path: /var/run/docker.sock
+
+volumes:
+  - name: docker_sock
+    host:
+      path: /var/run/docker.sock
+
+node:
+  machine: joyou-ci
+  command: nl
+
+trigger:
+  branch:
+    - sprint-*
+    - master
+  event:
+    - push
+
+---
+kind: pipeline
+type: docker
+name: deploy
+depends_on:
+  - build
+clone:
+  disable: true
+
+steps:
+  - name: deploy
+    image: plugins/docker
+    settings:
+      host: tcp://docker:2375
+    volumes:
+      - name: docker_sock
+        path: /var/run/docker.sock
+    commands:
+      - >
+        HOSTNAME=$(if [[ ${DRONE_BRANCH} == sprint-* ]]; then
+          echo "frontend-${DRONE_BRANCH}";
+        elif [[ ${DRONE_BRANCH} == master ]]; then
+          echo "frontend";
+        fi)
+      - |
+        if [ "$(docker ps -aq -f name=$HOSTNAME)" ]; then
+          docker stop $HOSTNAME
+          docker rm $HOSTNAME
+        fi
+      - docker run -d --name $HOSTNAME --network docker_default registry.eu-nl.com/joyou_admin:${DRONE_COMMIT_SHA}
+
+volumes:
+  - name: docker_sock
+    host:
+      path: /var/run/docker.sock
+
+node:
+  machine: joyou-stage
+  command: nl
+
+trigger:
+  branch:
+    - sprint-*
+    - master
+  event:
+    - push
+
+---
+kind: pipeline
+type: docker
+name: promote-stage
+
+clone:
+  disable: true
+
+steps:
+  - name: deploy
+    image: plugins/docker
+    settings:
+      host: tcp://docker:2375
+    volumes:
+      - name: docker_sock
+        path: /var/run/docker.sock
+    commands:
+      - >
+        HOSTNAME=$(if [[ ${DRONE_BRANCH} == sprint-* ]]; then
+          echo "frontend-${DRONE_BRANCH}";
+        elif [[ ${DRONE_BRANCH} == master ]]; then
+          echo "frontend";
+        fi)
+      - |
+        if [ "$(docker ps -aq -f name=$HOSTNAME)" ]; then
+          docker stop $HOSTNAME
+          docker rm $HOSTNAME
+        fi
+      - docker run -d --name $HOSTNAME --network docker_default registry.eu-nl.com/joyou_front:${DRONE_COMMIT_SHA}
+
+volumes:
+  - name: docker_sock
+    host:
+      path: /var/run/docker.sock
+
+node:
+  machine: joyou-stage
+  command: nl
+
+trigger:
+  branch:
+    - sprint-*
+    - master
+
+  event:
+    - promote
+  target:
+    - development
+
+---
+kind: pipeline
+type: docker
+name: promote
+
+clone:
+  disable: true
+
+steps:
+  - name: deploy
+    image: plugins/docker
+    settings:
+      host: tcp://docker:2375
+    volumes:
+      - name: docker_sock
+        path: /var/run/docker.sock
+    commands:
+      - |
+        if [ "$(docker ps -aq -f name=frontend)" ]; then
+          docker stop frontend
+          docker rm frontend
+        fi
+      - docker run -d --name frontend --network docker_default registry.eu-nl.com/joyou_admin:${DRONE_COMMIT_SHA}
+
+volumes:
+  - name: docker_sock
+    host:
+      path: /var/run/docker.sock
+
+node:
+  machine: joyou-prod
+  command: nl
+
+trigger:
+  branch:
+    - master
+
+  event:
+    - promote
+  target:
+    - production
