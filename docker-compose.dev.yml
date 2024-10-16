@@ -1,20 +1,20 @@
 version: '3.8'
 services:
-  vuejs:
-    image: node:21
-    container_name: '${VITE_CONTAINER_NAME}'
-    volumes:
-      - .:/app
-    working_dir: /app
-    environment:
-      - NODE_ENV=development
-    command: 'sh -c "npm install && npm run watch"'
-    networks:
-      - nginx-proxy
-    ports:
-      - '3000:${VITE_PORT}'
+    vuejs:
+        image: node:21
+        container_name: '${VITE_CONTAINER_NAME}'
+        volumes:
+            - .:/app
+        working_dir: /app
+        environment:
+            - NODE_ENV=development
+        command: 'sh -c "npm install && npm run watch"'
+        networks:
+            - nginx-proxy
+        ports:
+            - '3000:${VITE_PORT}'
 
 networks:
-  nginx-proxy:
-    external: true
-    name: nginx-proxy_default
+    nginx-proxy:
+        external: true
+        name: nginx-proxy_default

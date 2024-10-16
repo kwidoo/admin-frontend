@@ -1,18 +1,15 @@
 <template>
-    <div class="min-h-screen flex">//</div>
+        <CustomerForm />
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
 
-export default defineComponent({
-    components: {},
+import CustomerForm from './components/CustomerForm.vue';
 
-    setup() {
-        const test = 'test';
-        return {
-            test,
-        };
+export default defineComponent({
+    components: {
+        CustomerForm,
     },
 });
 </script>

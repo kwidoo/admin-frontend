@@ -3,13 +3,10 @@ import vue from '@vitejs/plugin-vue';
 import eslintPlugin from 'vite-plugin-eslint';
 import path from 'path';
 import dotenv from 'dotenv';
-import postcss from 'rollup-plugin-postcss';
-import tailwindcss from 'tailwindcss';
-import autoprefixer from 'autoprefixer';
 
 dotenv.config();
 const clientPort: number = Number(process.env.VITE_PORT) || 3000;
-const host: string = process.env.VITE_HOST || 'rentapp.home';
+const host: string = process.env.VITE_HOST || 'joyou.home';
 const buildName: string = process.env.VITE_BUILD_NAME || 'default';
 
 export default defineConfig({
@@ -42,9 +39,6 @@ export default defineConfig({
     },
     plugins: [
         vue(),
-        postcss({
-            plugins: [tailwindcss(), autoprefixer()],
-        }),
         eslintPlugin({
             cache: false,
             include: ['./src/**/*.vue', './src/**/*.ts'],
