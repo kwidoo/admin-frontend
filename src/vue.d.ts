@@ -1,3 +1,6 @@
+import type { Pinia } from 'pinia';
+import type { Router } from 'vue-router';
+
 declare module '*.vue' {
     import type { DefineComponent } from 'vue';
 
@@ -16,3 +19,12 @@ declare module '*.vue' {
     const component: DefineComponent<ComponentProps, ComponentEmits, ComponentSlots>;
     export default component;
 }
+
+declare global {
+    interface Window {
+        pinia: Pinia;
+        router: Router;
+    }
+}
+
+export { };
