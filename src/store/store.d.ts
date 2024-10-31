@@ -1,5 +1,8 @@
 declare module '_store' {
-    import type { Ref } from 'vue';
+    interface MicroServiceState {
+        microServices: MicroService[];
+        error: string | null;
+    }
 
     //
 }

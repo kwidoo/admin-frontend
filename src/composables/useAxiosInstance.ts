@@ -1,10 +1,9 @@
-import axios, {
-    AxiosInstance,
-} from 'axios';
+import axios from 'axios';
+import type { AxiosInstance } from 'axios';
 import { camelizeKeys, decamelizeKeys } from 'humps';
 
 const http: AxiosInstance = axios.create({
-    baseURL: 'http://localhost:8000/',
+    baseURL: import.meta.env.VITE_API_URL,
     headers: {
         'Content-Type': 'application/json',
     },
