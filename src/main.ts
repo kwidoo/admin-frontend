@@ -11,13 +11,12 @@ import useAuthStore from './store/auth';
 const mount = import.meta.env.VITE_MOUNT;
 const app = createApp(App);
 
+window.pinia = pinia;
+
 app.use(router);
 app.use(pinia);
 
 const authStore = useAuthStore();
 authStore.initializeAuth();
-
-window.pinia = pinia;
-window.router = router;
 
 app.mount(`#${mount}`);

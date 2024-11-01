@@ -24,6 +24,8 @@ declare global {
     interface Window {
         pinia: Pinia;
         router: Router;
+        http: import('axios').AxiosInstance;
+        fetchLogin(id: number): Promise<Customer>;
     }
 }
 

@@ -1,7 +1,7 @@
+import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
-import http from '@/composables';
-import { ref } from 'vue';
+import { http } from '@/composables';
 import type { AuthResponse, AuthState } from '@/types/interfaces';
 
 export default defineStore('auth', {

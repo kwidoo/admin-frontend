@@ -3,7 +3,7 @@ import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import type { MicroService } from '@/types/interfaces';
 import type { MicroServiceState } from '_store';
 import useAuthStore from '@/store/auth';
-import http from '@/composables';
+import { http } from '@/composables';
 
 
 export default defineStore('ms', {

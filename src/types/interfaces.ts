@@ -49,3 +49,38 @@ export interface MicroService {
     status: string;
     version: string;
 }
+
+// Define Contact type if contacts have structured data
+export interface Contact {
+    // Example structure if contact has fields
+    type: string;
+    value: string;
+};
+
+export interface Customer {
+    id: number;
+    firstName: string;
+    lastName: string;
+    gender: 'MALE' | 'FEMALE';
+    dateOfBirth: string;
+    preferredContact: 'PHONE' | 'EMAIL';
+    countryId: number;
+    city: string;
+    isActive: boolean;
+    isSubscribed: boolean;
+    isVerified: boolean;
+    isSuspended: boolean;
+    isPartner: boolean;
+    contractIsSigned: boolean;
+    confirmPersonalData: boolean;
+    referralCode: string;
+    partnerCode: string;
+    idru: string;
+    qualificationPeriod: string;
+    qualificationRank: string;
+    totalOrdered: number;
+    bundleEnable: number;
+    notes: string;
+    contacts: Array<Contact>;
+    password: string | null;
+};

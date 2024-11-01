@@ -1,5 +1,5 @@
 <template>
-    <div v-if="!loading && !showError" :id="microserviceName"></div>
+    <div v-if="!loading && !showError" :id="microserviceName" :data-route="computedDataRoute"></div>
     <div v-else :id="microserviceName" class="loading-spinner">
         <div v-if="!showError">Loading...</div>
         <div v-else>Microservice: {{ microserviceName }} temporary unavailable</div>
@@ -7,49 +7,53 @@
 </template>
 
 <script lang="ts">
-import DocuManager from '@/DocuManager.vue'; // @todo remove on ok
-import { defineComponent, computed, createApp, onMounted } from 'vue';
+import { defineComponent, computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import router from '@/router/docu';
+import { useMicroService, http, fetchLogin } from '@/composables';
 
 export default defineComponent({
     name: 'Microservice',
     setup() {
         const route = useRoute();
-        let loading = true;
+        const { loadJs, loadCss } = useMicroService();
+        let unmountHook: () => void = () => {};
+
+        const loading = ref<boolean>(true);
         let showError = false;
         const microserviceName = computed<string>(() => (route.meta.microservice as string) || '');
+
+        const computedDataRoute = computed(() => {
+            return route.meta.microservice === microserviceName.value ? route.fullPath : undefined;
+        });
 
         onMounted(async () => {
             if (microserviceName.value) {
                 try {
-                    // eslint-disable-next-line
-                    // const module = await import('https://your-s3-bucket-url/path/to/dist.js');  //@todo
-                    // const { DocuManager } = module;
+                    window.http = http;
+                    window.fetchLogin = fetchLogin;
+                    loadJs(microserviceName.value, 'http://localhost:3001');
+                    loadCss(microserviceName.value, 'http://localhost:3001');
+                    unmountHook = () => {
+                        document.getElementById(`${microserviceName.value}-js`)?.remove();
+                        document.getElementById(`${microserviceName.value}-css`)?.remove();
+                    };
 
-                    if (DocuManager) {
-                        const app = createApp(DocuManager);
-
-                        app.use(window.pinia);
-                        app.use(router);
-                        app.mount(`#${microserviceName.value}`);
-                        loading = false;
-                    } else {
-                        showError = true;
-
-                        console.error('DocuManager component not found in the module.');
-                    }
+                    loading.value = false;
                 } catch (error) {
                     showError = true;
                     console.error('Failed to load DocuManager module:', error);
                 }
             }
         });
+        onUnmounted(() => {
+            unmountHook();
+        });
 
         return {
             microserviceName,
             loading,
             showError,
+            computedDataRoute,
         };
     },
 });

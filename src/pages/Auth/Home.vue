@@ -11,7 +11,7 @@
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
-import useAxiosInstance from '@/composables/useAxiosInstance';
+import { http } from '@/composables';
 import { useMenuStore, useMsStore } from '@/store';
 import router from '@/router';
 import type { MenuItem, MicroService } from '@/types/interfaces';
@@ -42,7 +42,7 @@ export default defineComponent({
                             method: 'get',
                         };
 
-                        const response: AxiosResponse<MenuItem[]> = await useAxiosInstance(config);
+                        const response: AxiosResponse<MenuItem[]> = await http(config);
                         menuData.value[microService.name] = response.data;
                         menuStore.setMenuItems(menuData.value);
 
