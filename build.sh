@@ -1,14 +1,10 @@
 #!/bin/bash
 
-# Export the environment variables
-export VITE_APP_ENVIRONMENT=stage
-export VITE_APP_DELIVERY_API_URL
-
 # Install dependencies
 npm install
 
 # Build the project
-npm run build
+npm run build --name=admin-panel
 
 # Create a Dockerfile for the build
 cat <<EOF > Dockerfile
@@ -16,7 +12,7 @@ cat <<EOF > Dockerfile
 FROM nginx:alpine
 
 # Copy the build output to the NGINX html directory
-COPY ./build /usr/share/nginx/html
+COPY ./dist /usr/share/nginx/html
 
 COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
@@ -26,3 +22,9 @@ EXPOSE 80
 # Command to run NGINX
 CMD ["nginx", "-g", "daemon off;"]
 EOF
+
+# build Docker
+docker build --build-arg VITE_REGISTRY_URL=http://192.168.1.6:3000 -t admin-panel .
+
+# start
+docker run -d --name admin-panel --rm --network nginx-proxy_default admin-panel

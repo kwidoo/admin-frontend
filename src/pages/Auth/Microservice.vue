@@ -14,6 +14,7 @@ import { useMicroService, http, fetchLogin } from '@/composables';
 export default defineComponent({
     name: 'Microservice',
     setup() {
+        const registryUrl = import.meta.env.VITE_REGISTRY_URL;
         const route = useRoute();
         const { loadJs, loadCss } = useMicroService();
         let unmountHook: () => void = () => {};
@@ -31,8 +32,8 @@ export default defineComponent({
                 try {
                     window.http = http;
                     window.fetchLogin = fetchLogin;
-                    loadJs(microserviceName.value, 'http://localhost:3001');
-                    loadCss(microserviceName.value, 'http://localhost:3001');
+                    loadJs(microserviceName.value, registryUrl);
+                    loadCss(microserviceName.value, registryUrl);
                     unmountHook = () => {
                         document.getElementById(`${microserviceName.value}-js`)?.remove();
                         document.getElementById(`${microserviceName.value}-css`)?.remove();
@@ -41,7 +42,6 @@ export default defineComponent({
                     loading.value = false;
                 } catch (error) {
                     showError = true;
-                    console.error('Failed to load DocuManager module:', error);
                 }
             }
         });

@@ -46,7 +46,6 @@ export default defineStore('auth', {
 
             } catch (err) {
                 error.value = err instanceof Error ? err.message : 'An unknown error occurred';
-                console.error('Login failed:', error.value);
                 throw new Error('Login failed');
             }
 

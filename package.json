@@ -8,7 +8,7 @@
         "dev": "npm run development",
         "develop": "npm run development",
         "development": "NODE_ENV=development vite build --mode development",
-        "build": "dotenv -- sh -c 'npm run ${APP_ENV:-production}'",
+        "build": "APP_ENV=${APP_ENV:-production} vite build",
         "preview": "vite preview",
         "prod": "npm run production",
         "production": "NODE_ENV=production vite build",
