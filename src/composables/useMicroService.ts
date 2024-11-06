@@ -1,6 +1,7 @@
 import { onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 
+
 interface MicroServiceOptions {
     url?: string | undefined;
     shouldLoadJs: boolean;

@@ -1,26 +1,30 @@
 <template>
-    <div v-if="!loading" class="flex">
-        <Sidebar :menu-data="menuData" />
-        <main class="flex-1">
-            <router-view :some="menuData" />
-        </main>
+    <div v-if="!loading" class="flex flex-col lg:flex-col">
+        <top-bar />
+        <div class="flex-1 flex">
+            <sidebar :menu-data="menuData" />
+
+            <main class="flex-1 p-4">
+                <router-view />
+            </main>
+        </div>
     </div>
     <div v-else class="loading-spinner">Loading...</div>
 </template>
-
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue';
-import Sidebar from '@/components/Sidebar.vue';
+import { Sidebar, TopBar } from '@/components';
 import { http } from '@/composables';
 import { useMenuStore, useMsStore } from '@/store';
 import router from '@/router';
 import type { MenuItem, MicroService } from '@/types/interfaces';
 import type { RouteRecordRaw } from 'vue-router';
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { FwbSpinner } from 'flowbite-vue';
 
 export default defineComponent({
     name: 'Dashboard',
-    components: { Sidebar },
+    components: { Sidebar, TopBar, FwbSpinner },
 
     setup() {
         const menuData = ref<Record<string, MenuItem[]>>({});
@@ -37,6 +41,9 @@ export default defineComponent({
             const fetchPromises = microServiceStore.microServices.map(
                 async (microService: MicroService) => {
                     try {
+                        if (!microService.url) {
+                            return;
+                        }
                         const config: AxiosRequestConfig = {
                             url: `${microService.url}/menu`,
                             method: 'get',
@@ -45,6 +52,7 @@ export default defineComponent({
                         const response: AxiosResponse<MenuItem[]> = await http(config);
                         menuData.value[microService.name] = response.data;
                         menuStore.setMenuItems(menuData.value);
+                        menuData.value = menuStore.menuItems;
 
                         // Create routes for each menu item in this microservice
                         response.data.forEach((menuItem) => {

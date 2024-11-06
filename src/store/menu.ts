@@ -8,7 +8,24 @@ export default defineStore('menu', {
 
     actions: {
         setMenuItems(items: Record<string, MenuItem[]>) {
-            this.menuItems = items;
+            const plainItems = JSON.parse(JSON.stringify(items));
+
+            this.menuItems = {
+                'Customers': [
+                    {
+                        id: 1,
+                        name: 'Manage',
+                        slug: 'manage',
+                        url: '/dashboard/customers',
+                        icon: null,
+                        parentId: null,
+                        order: 3,
+                        permissions: '[]',
+                        children: [],
+                    },
+                ],
+                ...plainItems,
+            };
         },
     },
 
@@ -16,7 +33,7 @@ export default defineStore('menu', {
         topMenuItems: (state) => {
             return Object.values(state.menuItems)
                 .flat()
-                .filter((item) => item.parent_id === null);
+                .filter((item) => item.parentId === null);
         },
     },
 });

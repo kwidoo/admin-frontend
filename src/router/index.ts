@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router';
 import useAuthStore from '@/store/auth';
 import Home from '@/pages/Auth/Home.vue';
 import Login from '@/pages/NoAuth/Login.vue';
+import Customers from '@/pages/Auth/Customers.vue';
+import CustomerDetail from '@/pages/Auth/CustomerDetail.vue';
 
 const routes = [
     {
@@ -13,7 +15,22 @@ const routes = [
         name: 'Dashboard',
         component: Home,
         meta: { requiresAuth: true },
-        children: [],
+        children: [
+            {
+                path: '/dashboard/customers',
+                name: 'Customers',
+                component: Customers,
+                meta: { requiresAuth: true },
+                children: [],
+            },
+            {
+                path: '/dashboard/customer/:id?',
+                name: 'CustomerDetail',
+                component: CustomerDetail,
+                meta: { requiresAuth: true },
+                props: true,
+            },
+        ],
     },
     {
         path: '/login',

@@ -1,16 +1,16 @@
 // src/types/interfaces.ts
-
 export interface MenuItem {
     id: number;
     name: string;
     slug: string;
     url: string;
     icon: string | null;
-    parent_id: number | null;
+    parentId: number | null;
     order: number;
     permissions: string;
-    children: MenuItem[] | [] | null;
+    children?: MenuItem[]; // Children are optional
 }
+
 
 export interface PivotData {
     customer_type: 'admin' | 'customer';
@@ -50,37 +50,51 @@ export interface MicroService {
     version: string;
 }
 
+export interface DataItem {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [key: string]: any;
+    id: number | null;
+    enableEdit?: boolean;
+    enableDelete?: boolean;
+}
+
 // Define Contact type if contacts have structured data
-export interface Contact {
-    // Example structure if contact has fields
-    type: string;
-    value: string;
+export interface Contact extends DataItem {
+    id: number | null;
+    contactType: string;
+    contactValue: string;
 };
 
-export interface Customer {
-    id: number;
+export interface Customer extends DataItem {
+    id: number | null;
     firstName: string;
     lastName: string;
     gender: 'MALE' | 'FEMALE';
     dateOfBirth: string;
     preferredContact: 'PHONE' | 'EMAIL';
-    countryId: number;
+    countryId: number | null;
     city: string;
     isActive: boolean;
     isSubscribed: boolean;
     isVerified: boolean;
-    isSuspended: boolean;
     isPartner: boolean;
     contractIsSigned: boolean;
     confirmPersonalData: boolean;
-    referralCode: string;
-    partnerCode: string;
-    idru: string;
+    referralCode: string | number | null;
+    partnerCode: string | number | null;
+    idru: string | null;
     qualificationPeriod: string;
-    qualificationRank: string;
+    qualificationRank: 'A' | 'R';
     totalOrdered: number;
-    bundleEnable: number;
+    bundleEnable: boolean;
     notes: string;
     contacts: Array<Contact>;
     password: string | null;
 };
+
+export interface Country extends DataItem {
+    id: number;
+    name: string;
+}
+
+export type CustomerType = 'client' | 'partner' | 'business-partner';
