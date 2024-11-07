@@ -1,6 +1,8 @@
+import { useLoadingStore } from '@/store';
 import axios from 'axios';
 import type { AxiosInstance } from 'axios';
 import { camelizeKeys, decamelizeKeys } from 'humps';
+
 
 const http: AxiosInstance = axios.create({
     baseURL: import.meta.env.VITE_API_URL,
@@ -31,5 +33,35 @@ http.interceptors.response.use((response) => {
 
     return response;
 });
+
+
+// Request interceptor
+http.interceptors.request.use(
+    (config) => {
+        const loadingStore = useLoadingStore();
+        loadingStore.setLoading(true);
+        return config;
+    },
+    (error) => {
+        const loadingStore = useLoadingStore();
+        loadingStore.setLoading(false);
+        return Promise.reject(error);
+    },
+);
+
+// Response interceptor
+http.interceptors.response.use(
+    (response) => {
+        const loadingStore = useLoadingStore();
+        loadingStore.setLoading(false);
+        return response;
+    },
+    (error) => {
+        const loadingStore = useLoadingStore();
+        loadingStore.setLoading(false);
+        return Promise.reject(error);
+    },
+);
+
 
 export default http;

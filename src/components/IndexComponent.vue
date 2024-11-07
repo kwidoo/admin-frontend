@@ -62,6 +62,7 @@
                             </slot>
                         </td>
                         <td class="px-2 py-1 flex justify-end">
+                            <slot name="actions-prepend" :item="item"></slot>
                             <slot name="actions" :item="item">
                                 <button
                                     v-if="enableEdit && item.enableEdit !== false"

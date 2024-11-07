@@ -6,3 +6,4 @@ export default pinia;
 export { default as useAuthStore } from './auth';
 export { default as useMenuStore } from './menu';
 export { default as useMsStore } from './microService';
+export { default as useLoadingStore } from './loading';

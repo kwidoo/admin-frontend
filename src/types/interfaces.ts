@@ -61,8 +61,10 @@ export interface DataItem {
 // Define Contact type if contacts have structured data
 export interface Contact extends DataItem {
     id: number | null;
-    contactType: string;
-    contactValue: string;
+    name: string | null;
+    customerId: number | null;
+    contactType: 'PHONE' | 'EMAIL' | 'WHATSAPP' | 'TELEGRAM';
+    contactValue: string | null;
 };
 
 export interface Customer extends DataItem {

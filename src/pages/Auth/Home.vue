@@ -1,34 +1,34 @@
 <template>
-    <div v-if="!loading" class="flex flex-col lg:flex-col">
+    <div class="flex flex-col lg:flex-col">
         <top-bar />
-        <div class="flex-1 flex">
+        <div class="flex-1 flex" v-if="!initialLoading">
             <sidebar :menu-data="menuData" />
-
             <main class="flex-1 p-4">
                 <router-view />
             </main>
         </div>
     </div>
-    <div v-else class="loading-spinner">Loading...</div>
 </template>
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue';
 import { Sidebar, TopBar } from '@/components';
 import { http } from '@/composables';
-import { useMenuStore, useMsStore } from '@/store';
+import { useMenuStore, useMsStore, useLoadingStore } from '@/store';
 import router from '@/router';
 import type { MenuItem, MicroService } from '@/types/interfaces';
 import type { RouteRecordRaw } from 'vue-router';
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { FwbSpinner } from 'flowbite-vue';
 
 export default defineComponent({
     name: 'Dashboard',
-    components: { Sidebar, TopBar, FwbSpinner },
+    components: { Sidebar, TopBar },
 
     setup() {
+        const loadingStore = useLoadingStore();
+        const { loading } = loadingStore;
+
         const menuData = ref<Record<string, MenuItem[]>>({});
-        const loading = ref(true);
+        const initialLoading = ref(true);
         const error = ref<string | null>(null);
         const menuStore = useMenuStore();
         const microServiceStore = useMsStore();
@@ -81,14 +81,16 @@ export default defineComponent({
 
         onMounted(async () => {
             try {
+                loadingStore.setLoading(true);
                 await loadMicroservices();
                 await fetchMenuData();
             } finally {
-                loading.value = false;
+                loadingStore.setLoading(false);
+                initialLoading.value = false;
             }
         });
 
-        return { menuData, loading, error };
+        return { menuData, loading, initialLoading, error };
     },
 });
 </script>

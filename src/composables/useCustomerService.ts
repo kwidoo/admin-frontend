@@ -7,7 +7,7 @@ import useUrlService from './useUrlService';
 interface CustomerService {
     saveCustomer(customer: Customer): Promise<Customer>;
     fetchCustomer(customerId: number | string): Promise<Customer>;
-    fetch(page: number, sort: { sortBy: string; sortOrder: string }, searchQuery: string): Promise<{ customers: Customer[]; total: number; currentPage: number }>;
+    fetch(page: number, sort: { sortBy: string; sortOrder: string }, searchQuery: string): Promise<{ customers: Customer[]; lastPage: number; currentPage: number }>;
     generate(type: string): Promise<string>;
     setType(customer: Customer): Customer;
     updateType(customerId: number, customerType: 'client' | 'partner' | 'business-partner'): Promise<Customer>;
@@ -63,15 +63,15 @@ const customerService: CustomerService = {
         page: number,
         sort: { sortBy: string; sortOrder: string } = { sortBy: '', sortOrder: 'asc' },
         searchQuery: string = '',
-    ): Promise<{ customers: Customer[]; total: number; currentPage: number }> {
+    ): Promise<{ customers: Customer[]; lastPage: number; currentPage: number }> {
         const config: AxiosRequestConfig = urlService.customer.index(page, sort, searchQuery);
 
-        const response: AxiosResponse<{ data: Customer[]; meta: { total: number; currentPage: number } }> = await http(config);
+        const response: AxiosResponse<{ data: Customer[]; meta: { lastPage: number; currentPage: number } }> = await http(config);
 
         const customers = response.data.data.map((customer) => this.setType({ ...customer }));
-        const { total, currentPage } = response.data.meta;
+        const { lastPage, currentPage } = response.data.meta;
 
-        return { customers, total, currentPage };
+        return { customers, lastPage, currentPage };
     },
 
     async generate(type: string = 'referral_code'): Promise<string> {

@@ -10,7 +10,7 @@
             :enable-delete="true"
             :table-data="customers"
             :current-page="currentPage"
-            :total-pages="totalPages"
+            :total-pages="lastPage"
             @load-data="loadData"
             @create-new="createNewItem"
             @edit-item="editItem"
@@ -43,7 +43,7 @@ export default defineComponent({
         const { t } = useI18n();
         const loading = ref<boolean>(false);
         const currentPage = ref<number>(1);
-        const totalPages = ref<number>(2);
+        const lastPage = ref<number>(1);
 
         const headers = ref<Header[]>([
             { key: 'id', label: t('ID') },
@@ -70,7 +70,7 @@ export default defineComponent({
                     searchQuery.value,
                 );
                 customers.value = response.customers;
-                totalPages.value = response.total;
+                lastPage.value = response.lastPage;
                 currentPage.value = response.currentPage;
             } catch (error) {
                 toast.error('Failed to load customers');
@@ -90,7 +90,7 @@ export default defineComponent({
             }
             router.push({
                 name: 'CustomerDetail',
-                params: { id: customer.id },
+                params: { customerId: customer.id },
             });
         };
 
@@ -115,7 +115,7 @@ export default defineComponent({
             headers,
             customers,
             currentPage,
-            totalPages,
+            lastPage,
             loadData,
             createNewItem,
             editItem,
