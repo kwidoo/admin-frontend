@@ -16,7 +16,14 @@
                         class="px-2 py-1 border rounded-md text-xs bg-secondary text-on-primary placeholder:text-on-primary-secondary focus:bg-primary-variant focus:ring-primary-dark"
                     />
                     <button
-                        @click="$emit('load-data', { searchQuery, sortBy: sortByField, sortOrder })"
+                        @click="
+                            $emit('load-data', {
+                                searchQuery,
+                                sortBy: sortByField,
+                                sortOrder,
+                                perPage,
+                            })
+                        "
                         class="px-2 py-1 text-xs rounded-md bg-primary text-on-secondary hover:bg-secondary-dark"
                     >
                         <font-awesome-icon :icon="['fas', 'search']" /> Search
@@ -32,9 +39,27 @@
             </slot>
         </div>
 
+        <!-- Per Page Selection -->
+        <div v-if="enablePerPage" class="mb-2">
+            <label for="perPage" class="mr-2 text-xs font-medium text-gray-900 dark:text-white"
+                >Items per page:</label
+            >
+            <select
+                v-model="perPage"
+                id="perPage"
+                @change="emitLoadData"
+                class="text-xs border rounded-md"
+            >
+                <option :value="10">10</option>
+                <option :value="25">25</option>
+                <option :value="50">50</option>
+            </select>
+        </div>
+
         <!-- Data Table -->
         <div class="overflow-x-auto">
             <table
+                v-if="!isLoading"
                 class="min-w-full text-left border border-gray-300 rounded-md shadow text-xs bg-surface text-on-surface"
             >
                 <thead>
@@ -126,6 +151,11 @@ export default defineComponent({
             type: String,
             required: true,
         },
+        isLoading: {
+            type: Boolean,
+            required: false,
+            default: true,
+        },
         headers: {
             type: Array as () => Header[],
             required: true,
@@ -150,17 +180,23 @@ export default defineComponent({
             type: Boolean,
             default: true,
         },
+        enablePerPage: {
+            type: Boolean,
+            default: false,
+        },
         tableData: {
             type: Array as () => DataItem[],
             required: true,
         },
         currentPage: {
             type: Number,
-            required: true,
+            required: false,
+            default: 1,
         },
         totalPages: {
             type: Number,
-            required: true,
+            required: false,
+            default: 1,
         },
     },
     emits: ['load-data', 'create-new', 'edit-item', 'delete-item', 'change-page'],
@@ -168,6 +204,7 @@ export default defineComponent({
         const sortByField = ref<string>('id');
         const sortOrder = ref<'asc' | 'desc'>('desc');
         const searchQuery = ref<string>('');
+        const perPage = ref<number>(10);
 
         const emitLoadData = () => {
             // Emit load-data event with current state
@@ -175,6 +212,7 @@ export default defineComponent({
                 searchQuery: searchQuery.value,
                 sortBy: sortByField.value,
                 sortOrder: sortOrder.value,
+                perPage: perPage.value,
             });
         };
 
@@ -198,6 +236,8 @@ export default defineComponent({
             searchQuery,
             sortBy,
             paginatedData,
+            perPage,
+            emitLoadData,
         };
     },
 });

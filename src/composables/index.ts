@@ -3,3 +3,4 @@ export { default as useMicroService } from './useMicroService';
 export { default as useCountryService } from './useCountryService';
 export { default as useCustomerService } from './useCustomerService';
 export { default as useContactService } from './useContactService';
+export { default as useLoginService } from './useLoginService';

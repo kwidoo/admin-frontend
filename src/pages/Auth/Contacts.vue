@@ -1,19 +1,22 @@
 <template>
-    <div v-if="!loading">
+    <div>
         <index-component
+            :is-loading="loading"
             :label="'Contacts'"
             :headers="headers"
             :search-field="''"
-            :enable-search="false"
+            :enable-search="true"
             :enable-new="true"
             :enable-edit="true"
             :enable-delete="true"
             :table-data="contactValues"
             :current-page="currentPage"
             :total-pages="lastPage"
+            @load-data="loadData"
             @create-new="createNewItem"
             @edit-item="editItem"
             @delete-item="confirmDelete"
+            @change-page="changePage"
         >
             <template v-if="!inline" #actions-prepend="{ item }">
                 <button
@@ -26,51 +29,55 @@
         </index-component>
 
         <!-- Modal for New/Edit Contact -->
-        <div
-            v-if="isModalOpen"
-            class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50"
-        >
-            <div class="bg-white rounded-lg shadow-lg w-1/2 p-6">
-                <router-view :key="$route.fullPath" @close-modal="closeModal" />
-            </div>
-        </div>
-        <div
-            v-if="isDeleteModalOpen"
-            class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50"
-        >
-            <div class="bg-white rounded-lg shadow-lg w-1/3 p-6">
-                <h2 class="text-lg font-semibold mb-4">Confirm Deletion</h2>
-                <p>Are you sure you want to delete this contact?</p>
-                <div class="flex justify-end gap-4 mt-4">
-                    <button @click="cancelDelete" class="px-3 py-1 bg-gray-300 rounded">
-                        Cancel
-                    </button>
-                    <button @click="deleteContact" class="px-3 py-1 bg-red-500 text-white rounded">
-                        Delete
-                    </button>
+        <modal-component v-if="isModalOpen" :is-modal-open="isModalOpen" @close-modal="closeModal"
+            ><template #header></template>
+            <template #content>
+                <div
+                    class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50"
+                >
+                    <div class="bg-white rounded-lg shadow-lg w-1/2 p-6">
+                        <router-view :key="$route.fullPath" @close-modal="closeModal" />
+                    </div>
                 </div>
-            </div>
-        </div>
+            </template>
+        </modal-component>
+
+        <confirm-modal
+            :is-modal-open="isDeleteModalOpen"
+            text="Are you sure you want to delete this contact?"
+            @close-modal="cancelDelete"
+            @action="deleteContact"
+        />
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, onMounted, ref, computed } from 'vue';
-import IndexComponent from '@/components/IndexComponent.vue';
 import { useContactService } from '@/composables';
 import router from '@/router';
 import { useToast } from 'vue-toastification';
 import type { Contact } from '@/types/interfaces';
 import { useRoute } from 'vue-router';
+import { ConfirmModal, IndexComponent, ModalComponent } from '@/components';
 
 interface Header {
     key: string;
     label: string;
 }
 
+interface LoadDataParams {
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+    searchQuery?: string;
+    page: number | null;
+    perPage?: number;
+}
+
 export default defineComponent({
     components: {
         IndexComponent,
+        ConfirmModal,
+        ModalComponent,
     },
     name: 'ContactsComponent',
     props: {
@@ -93,13 +100,17 @@ export default defineComponent({
         const loading = ref(false);
         const currentPage = ref(1);
         const lastPage = ref(1);
+        const perPage = ref<number>(15);
 
         const headers = ref<Header[]>([
-            { key: 'contactType', label: 'Contact Type' },
             { key: 'contactValue', label: 'Contact Value' },
+            { key: 'contactType', label: 'Contact Type' },
         ]);
 
         const contactValues = ref<Contact[]>([]);
+        const sortByField = ref<string>('contactValue');
+        const sortOrder = ref<'asc' | 'desc'>('desc');
+        const searchQuery = ref<string>('');
         const toast = useToast();
 
         const route = useRoute();
@@ -107,7 +118,7 @@ export default defineComponent({
             return !!props.contacts;
         });
 
-        const loadData = async () => {
+        const loadData = async (params: LoadDataParams | null) => {
             if (route.meta.modal) {
                 isModalOpen.value = true;
             }
@@ -115,7 +126,21 @@ export default defineComponent({
                 contactValues.value = props.contacts;
             } else {
                 try {
-                    const response = await useContactService.fetch(currentPage.value);
+                    sortByField.value = params?.sortBy || sortByField.value;
+                    sortOrder.value = params?.sortOrder || sortOrder.value;
+                    searchQuery.value = params?.searchQuery || searchQuery.value;
+                    perPage.value = params?.perPage || perPage.value;
+
+                    const response = await useContactService.fetch(
+                        currentPage.value,
+                        {
+                            orderBy: sortByField.value,
+                            order: sortOrder.value,
+                        },
+                        searchQuery.value,
+                        perPage.value,
+                        false,
+                    );
                     contactValues.value = response.contacts;
                     lastPage.value = response.lastPage;
                     headers.value.unshift({ key: 'name', label: 'Name' });
@@ -186,7 +211,7 @@ export default defineComponent({
             toDeleteId.value = null;
         };
 
-        const closeModal = () => {
+        const closeModal = async () => {
             isModalOpen.value = false;
             emit('close-modal');
         };
@@ -199,6 +224,15 @@ export default defineComponent({
                     customerId: contact.customerId,
                 },
             });
+        };
+
+        const changePage = async (page: number) => {
+            currentPage.value = page;
+            loading.value = true;
+            await loadData({
+                page,
+            });
+            loading.value = false;
         };
 
         onMounted(loadData);
@@ -220,6 +254,7 @@ export default defineComponent({
             closeModal,
             inline,
             toCustomer,
+            changePage,
         };
     },
 });

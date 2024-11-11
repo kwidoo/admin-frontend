@@ -2,8 +2,33 @@ import type { MenuItem } from '@/types/interfaces';
 import { defineStore } from 'pinia';
 
 export default defineStore('menu', {
-    state: () => ({
-        menuItems: {} as Record<string, MenuItem[]>,
+    state: (): { menuItems: Record<string, MenuItem[]> } => ({
+        menuItems: {
+            'Customers': [
+                {
+                    id: 1,
+                    name: 'Manage',
+                    slug: 'manage',
+                    url: '/dashboard/customers',
+                    icon: null,
+                    parentId: null,
+                    order: 3,
+                    permissions: '[]',
+                    children: [],
+                },
+                {
+                    id: 2,
+                    name: 'Contacts',
+                    slug: 'contacts',
+                    url: '/dashboard/contacts',
+                    icon: null,
+                    parentId: null,
+                    order: 3,
+                    permissions: '[]',
+                    children: [],
+                },
+            ],
+        },
     }),
 
     actions: {
@@ -11,29 +36,8 @@ export default defineStore('menu', {
             const plainItems = JSON.parse(JSON.stringify(items));
 
             this.menuItems = {
-                'Customers': [
-                    {
-                        id: 1,
-                        name: 'Manage',
-                        slug: 'manage',
-                        url: '/dashboard/customers',
-                        icon: null,
-                        parentId: null,
-                        order: 3,
-                        permissions: '[]',
-                        children: [],
-                    }, {
-                        id: 1,
-                        name: 'Contacts',
-                        slug: 'contacts',
-                        url: '/dashboard/contacts',
-                        icon: null,
-                        parentId: null,
-                        order: 3,
-                        permissions: '[]',
-                        children: [],
-                    },
-                ],
+                ...this.menuItems,
+
                 ...plainItems,
             };
         },

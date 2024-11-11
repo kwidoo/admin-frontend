@@ -91,7 +91,11 @@
                         v-model="customer.countryId"
                         class="px-2 py-1 w-full border rounded-md text-xs bg-secondary text-on-primary focus:bg-primary-variant focus:ring-primary-dark"
                     >
-                        <option v-for="country in countries" :key="country.id" :value="country.id">
+                        <option
+                            v-for="country in countries"
+                            :key="country.id"
+                            :value="country.bagistoId"
+                        >
                             {{ country.name }}
                         </option>
                     </select>
@@ -215,9 +219,22 @@
                 >
                     <option value="EMAIL">Email</option>
                     <option value="PHONE">Phone</option>
+                    <option value="TELEGRAM">Telegram</option>
+                    <option value="WHATSAPP">Whatsapp</option>
                 </select>
             </div>
-            <contacts :key="contactKey" :contacts="customer.contacts" :user-id="customer.id" />
+            <div v-if="customer.id" class="flex gap-4 mt-4">
+                <div class="form-group mt-4 w-1/2">
+                    <logins :customer="customer" />
+                </div>
+                <div class="form-group mt-4 w-1/2">
+                    <contacts
+                        :key="contactKey"
+                        :contacts="customer.contacts"
+                        :user-id="customer.id"
+                    />
+                </div>
+            </div>
             <div class="flex gap-4 mt-4 justify-between">
                 <button
                     @click.prevent="cancel"
@@ -249,6 +266,7 @@ import {
 } from '@/components';
 import type { Customer, Country, CustomerType } from '@/types/interfaces';
 import Contacts from '@/pages/Auth/Contacts.vue';
+import Logins from '@/pages/Auth/Logins.vue';
 
 export default defineComponent({
     name: 'CustomerDetails',
@@ -257,6 +275,7 @@ export default defineComponent({
         CustomerTypeComponent,
         UniversalInput,
         Contacts,
+        Logins,
     },
     setup() {
         const loading = ref<boolean>(true);

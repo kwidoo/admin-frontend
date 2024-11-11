@@ -8,6 +8,7 @@
             </main>
         </div>
     </div>
+    <div id="modal-container"></div>
 </template>
 <script lang="ts">
 import { defineComponent, onMounted, ref } from 'vue';
@@ -84,6 +85,7 @@ export default defineComponent({
                 loadingStore.setLoading(true);
                 await loadMicroservices();
                 await fetchMenuData();
+                menuData.value = menuStore.menuItems;
             } finally {
                 loadingStore.setLoading(false);
                 initialLoading.value = false;

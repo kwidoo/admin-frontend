@@ -1,5 +1,5 @@
 <template>
-    <div v-if="!loading">
+    <div>
         <index-component
             :label="'Customer'"
             :headers="headers"
@@ -8,9 +8,11 @@
             :enable-new="true"
             :enable-edit="true"
             :enable-delete="true"
+            :enable-per-page="true"
             :table-data="customers"
             :current-page="currentPage"
             :total-pages="lastPage"
+            :is-loading="loading"
             @load-data="loadData"
             @create-new="createNewItem"
             @edit-item="editItem"
@@ -34,16 +36,32 @@ interface Header {
     label: string;
 }
 
+interface LoadDataParams {
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+    searchQuery?: string;
+    page: number | null;
+    perPage?: number;
+}
+
 export default defineComponent({
     components: {
         IndexComponent,
     },
     name: 'ParentTableComponent',
-    setup() {
+    props: {
+        page: {
+            type: Number,
+            required: false,
+            default: 1,
+        },
+    },
+    setup(props) {
         const { t } = useI18n();
         const loading = ref<boolean>(false);
         const currentPage = ref<number>(1);
         const lastPage = ref<number>(1);
+        const perPage = ref<number>(10);
 
         const headers = ref<Header[]>([
             { key: 'id', label: t('ID') },
@@ -59,15 +77,22 @@ export default defineComponent({
         const searchQuery = ref<string>('');
         const toast = useToast();
 
-        const loadData = async () => {
+        const loadData = async (params: LoadDataParams | null) => {
             try {
+                sortByField.value = params?.sortBy || sortByField.value;
+                sortOrder.value = params?.sortOrder || sortOrder.value;
+                searchQuery.value = params?.searchQuery || searchQuery.value;
+                perPage.value = params?.perPage || perPage.value;
+
                 const response = await useCustomerService.fetch(
                     currentPage.value,
                     {
-                        sortBy: sortByField.value,
-                        sortOrder: sortOrder.value,
+                        orderBy: sortByField.value,
+                        order: sortOrder.value,
                     },
                     searchQuery.value,
+                    perPage.value,
+                    false,
                 );
                 customers.value = response.customers;
                 lastPage.value = response.lastPage;
@@ -102,12 +127,17 @@ export default defineComponent({
         const changePage = async (page: number) => {
             currentPage.value = page;
             loading.value = true;
-            await loadData();
+            await loadData({
+                page,
+            });
             loading.value = false;
         };
 
         onMounted(() => {
-            loadData();
+            currentPage.value = props.page || 1;
+            loadData({
+                page: currentPage.value,
+            });
         });
 
         return {

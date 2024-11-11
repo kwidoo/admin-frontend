@@ -18,17 +18,18 @@ export interface PivotData {
     customer_id: number;
 }
 
-export interface UserData {
-    id: number;
-    login_value: string;
-    login_value_type: 'EMAIL' | 'PHONE';
-    name: string;
-    pivot: PivotData;
+export interface Login {
+    id: number | null;
+    loginValue: string;
+    loginValueType: 'EMAIL' | 'PHONE';
+    name: string | null;
+    password: string | null;
+    pivot: PivotData | null;
 }
 
 export interface AuthResponse {
     success: boolean;
-    data: UserData[];
+    data: Login[];
     message: string;
     token: string;
 }
@@ -38,6 +39,11 @@ export interface AuthState {
         token: string | null; // bearer token
     };
     isAuthenticated: boolean;
+}
+
+export interface Password {
+    password: string | null;
+    notify: boolean;
 }
 
 export interface MicroService {

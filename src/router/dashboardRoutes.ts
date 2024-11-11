@@ -8,6 +8,7 @@ import ContactDetail from '@/pages/Auth/ContactDetail.vue';
 const dashboardRoutes: RouteRecordRaw[] = [
     {
         path: '/dashboard',
+        name: 'Dashboard',
         component: Home,
         meta: { requiresAuth: true },
         children: [
@@ -21,7 +22,7 @@ const dashboardRoutes: RouteRecordRaw[] = [
                 children: [],
             },
             {
-                path: 'customers/:customerId',
+                path: 'customer/:customerId?',
                 name: 'CustomerDetail',
                 component: CustomerDetail,
                 meta: {

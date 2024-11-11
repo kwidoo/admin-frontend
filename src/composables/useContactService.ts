@@ -6,7 +6,7 @@ import useUrlService from './useUrlService';
 
 interface contactService {
     save(contact: Contact): Promise<Contact>;
-    fetch(page: number, sort: { sortBy: string; sortOrder: string }, searchQuery: string): Promise<{ contacts: Contact[]; lastPage: number; currentPage: number }>;
+    fetch(page: number, sort: { orderBy: string; order: string }, searchQuery: string, perPage: number, noPagination: boolean): Promise<{ contacts: Contact[]; lastPage: number; currentPage: number }>;
     fetchById(contactId: number | string): Promise<Contact>;
     delete(contactId: number | string): Promise<void>;
 
@@ -25,10 +25,12 @@ const contactService: contactService = {
 
     async fetch(
         page: number,
-        sort: { sortBy: string; sortOrder: string } = { sortBy: '', sortOrder: 'asc' },
+        sort: { orderBy: string; order: string } = { orderBy: '', order: 'asc' },
         searchQuery: string = '',
+        perPage: number = 15,
+        noPagination: boolean = false,
     ): Promise<{ contacts: Contact[]; lastPage: number; currentPage: number }> {
-        const config: AxiosRequestConfig = urlService.contact.index(page, sort, searchQuery);
+        const config: AxiosRequestConfig = urlService.contact.index(page, sort, searchQuery, perPage, noPagination);
 
         const response: AxiosResponse<{ data: Contact[]; meta: { lastPage: number; currentPage: number } }> = await http(config);
 

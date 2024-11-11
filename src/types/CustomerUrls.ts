@@ -8,17 +8,21 @@ class CustomerUrls {
 
     index(
         page: number,
-        sort: { sortBy: string; sortOrder: string } = { sortBy: '', sortOrder: 'asc' },
+        sort: { orderBy: string; order: string } = { orderBy: '', order: 'asc' },
         searchQuery: string = '',
+        perPage: number = 15,
+        noPagination: boolean = false,
     ): AxiosRequestConfig {
         return {
             url: this.basePath,
             method: 'get',
             params: {
                 page,
-                sort_by: sort.sortBy,
-                sortOrder: sort.sortOrder,
+                orderBy: sort.orderBy,
+                order: sort.order,
                 searchQuery,
+                perPage,
+                noPagination,
             },
         };
     }
@@ -32,7 +36,7 @@ class CustomerUrls {
 
     save(customer: Customer): AxiosRequestConfig {
         return {
-            url: this.basePath,
+            url: `${this.basePath}/create`,
             method: 'post',
             data: customer,
         };

@@ -9,7 +9,7 @@
 <script lang="ts">
 import { defineComponent, computed, onMounted, onUnmounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { useMicroService, http, fetchLogin } from '@/composables';
+import { useMicroService, http } from '@/composables';
 
 export default defineComponent({
     name: 'Microservice',
@@ -31,7 +31,6 @@ export default defineComponent({
             if (microserviceName.value) {
                 try {
                     window.http = http;
-                    window.fetchLogin = fetchLogin;
                     loadJs(microserviceName.value, registryUrl);
                     loadCss(microserviceName.value, registryUrl);
                     unmountHook = () => {

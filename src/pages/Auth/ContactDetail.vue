@@ -2,49 +2,37 @@
     <form @submit.prevent>
         <div v-if="!inline" class="flex gap-4 mt-4">
             <div class="form-group mt-4 w-1/3 relative">
-                <label class="block mb-1 text-sm font-medium">Customer</label>
-                <input
-                    v-model="selectedCustomerName"
-                    @input="searchCustomer"
-                    @change="updateUserId"
-                    list="customersList"
+                <search-input
+                    label="Customer"
+                    :endpoint="`/iam/api/v1/customers`"
+                    :display-fields="['firstName', 'lastName', 'referralCode']"
                     placeholder="Search customer"
-                    class="px-2 py-1 w-full border rounded-md text-xs bg-secondary text-on-primary focus:bg-primary-variant focus:ring-primary-dark"
+                    v-model="customerSelected"
                 />
-                <datalist id="customersList" class="absolute w-full">
-                    <option
-                        v-for="customer in filteredCustomers"
-                        :key="customer.id"
-                        :value="`${customer.firstName} ${customer.lastName}`"
-                        :data-id="customer.id"
-                    >
-                        {{ customer.firstName }} {{ customer.lastName }}
-                    </option>
-                </datalist>
             </div>
         </div>
 
         <div class="flex gap-4 mt-4">
-            <div class="form-group mt-4 w-1/3">
-                <label class="block mb-1 text-sm font-medium">Contact Type</label>
-                <select
-                    v-model="contactForm.contactType"
-                    class="px-2 py-1 w-full border rounded-md text-xs bg-secondary text-on-primary focus:bg-primary-variant focus:ring-primary-dark"
-                >
-                    <option value="PHONE">Phone</option>
-                    <option value="EMAIL">Email</option>
-                </select>
-            </div>
-
-            <div class="form-group mt-4 w-2/3">
-                <label class="block mb-1 text-sm font-medium">Contact Value</label>
-                <input
-                    v-model="contactForm.contactValue"
-                    type="text"
-                    class="mt-1 block w-full px-2 py-1 border rounded-md text-xs bg-secondary text-on-primary focus:bg-primary-variant focus:ring-primary-dark"
-                    required
-                />
-            </div>
+            <select-component
+                v-model="contactForm.contactType"
+                label="Contact Type"
+                id="contact-type"
+                :options="{
+                    EMAIL: 'Email',
+                    PHONE: 'Phone',
+                    TELEGRAM: 'Telegram',
+                    WHATSAPP: 'Whatsapp',
+                }"
+                required
+                form-class="w-1/3"
+            />
+            <simple-input
+                v-model="contactForm.contactValue"
+                label="Contact Value"
+                id="contact-value"
+                required
+                form-class="w-2/3"
+            />
         </div>
 
         <div class="flex justify-end mt-6">
@@ -66,12 +54,12 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref, onMounted } from 'vue';
+import { defineComponent, ref, computed, onMounted, watch } from 'vue';
 import { useToast } from 'vue-toastification';
-
-import { useContactService, useCustomerService } from '@/composables';
+import { useContactService } from '@/composables';
 import type { Contact, Customer } from '@/types/interfaces';
 import { useRoute, useRouter } from 'vue-router';
+import { SearchInput, SelectComponent, SimpleInput } from '@/components';
 
 export default defineComponent({
     name: 'ContactDetail',
@@ -86,13 +74,18 @@ export default defineComponent({
             default: null,
         },
     },
+    components: {
+        SearchInput,
+        SelectComponent,
+        SimpleInput,
+    },
     emits: ['close-modal'],
+
     setup(props, { emit }) {
         const toast = useToast();
         const router = useRouter();
         const route = useRoute();
-        const customers = ref<Customer[]>([]);
-        const filteredCustomers = ref<Customer[]>([]);
+        const loading = ref<boolean>(false); // Loader state
 
         const contactForm = ref<Contact>({
             id: props.contactId as unknown as number,
@@ -103,29 +96,9 @@ export default defineComponent({
         });
 
         const modalMode = computed(() => (props.contactId ? 'edit' : 'add'));
-
         const inline = computed(() => route.name !== 'ContactDetail');
 
-        const selectedCustomerName = computed({
-            get: () => {
-                const selectedCustomer = customers.value.find(
-                    (customer) => customer.id === contactForm.value.customerId,
-                );
-                return selectedCustomer
-                    ? `${selectedCustomer.firstName} ${selectedCustomer.lastName}`
-                    : '';
-            },
-            set: (name) => {
-                const selectedCustomer = customers.value.find(
-                    (customer) =>
-                        `${customer.firstName} ${customer.lastName}`.toLowerCase() ===
-                        name.toLowerCase(),
-                );
-                if (selectedCustomer) {
-                    contactForm.value.customerId = selectedCustomer.id;
-                }
-            },
-        });
+        const customerSelected = ref<Customer | null>(null);
 
         const save = async () => {
             try {
@@ -142,34 +115,12 @@ export default defineComponent({
             }
         };
 
-        const searchCustomer = () => {
-            filteredCustomers.value = customers.value.filter((customer) =>
-                `${customer.firstName} ${customer.lastName}`
-                    .toLowerCase()
-                    .includes(selectedCustomerName.value.toLowerCase()),
-            );
-        };
-
-        const updateUserId = (event: Event) => {
-            const input = event.target as HTMLInputElement;
-            const selectedCustomer = customers.value.find(
-                (customer) => `${customer.firstName} ${customer.lastName}` === input.value,
-            );
-            if (selectedCustomer) {
-                contactForm.value.customerId = selectedCustomer.id;
-            }
-        };
-
         onMounted(async () => {
             if (props.contactId) {
                 contactForm.value = await useContactService.fetchById(props.contactId);
             }
-            const response = await useCustomerService.fetch();
-            customers.value = response.customers;
-            filteredCustomers.value = customers.value;
-
             if (props.customerId) {
-                contactForm.value.customerId = props.customerId;
+                contactForm.value.customerId = props.customerId as unknown as number;
             }
         });
 
@@ -181,15 +132,19 @@ export default defineComponent({
             }
         };
 
+        watch(customerSelected, (newValue) => {
+            if (newValue) {
+                contactForm.value.customerId = newValue.id;
+            }
+        });
+
         return {
             modalMode,
             contactForm,
-            selectedCustomerName,
-            filteredCustomers,
+            customerSelected,
             save,
             cancel,
-            searchCustomer,
-            updateUserId,
+            loading,
             inline,
         };
     },

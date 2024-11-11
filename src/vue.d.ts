@@ -29,4 +29,6 @@ declare global {
     }
 }
 
+declare module 'lodash';
+
 export { };

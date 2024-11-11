@@ -7,7 +7,7 @@ import useUrlService from './useUrlService';
 interface CustomerService {
     saveCustomer(customer: Customer): Promise<Customer>;
     fetchCustomer(customerId: number | string): Promise<Customer>;
-    fetch(page: number, sort: { sortBy: string; sortOrder: string }, searchQuery: string): Promise<{ customers: Customer[]; lastPage: number; currentPage: number }>;
+    fetch(page: number, sort: { orderBy: string; order: string }, searchQuery: string, perPage: number, noPagination: boolean): Promise<{ customers: Customer[]; lastPage: number; currentPage: number }>;
     generate(type: string): Promise<string>;
     setType(customer: Customer): Customer;
     updateType(customerId: number, customerType: 'client' | 'partner' | 'business-partner'): Promise<Customer>;
@@ -61,10 +61,12 @@ const customerService: CustomerService = {
 
     async fetch(
         page: number,
-        sort: { sortBy: string; sortOrder: string } = { sortBy: '', sortOrder: 'asc' },
+        sort: { orderBy: string; order: string } = { orderBy: '', order: 'asc' },
         searchQuery: string = '',
+        perPage: number = 10,
+        noPagination: boolean = false,
     ): Promise<{ customers: Customer[]; lastPage: number; currentPage: number }> {
-        const config: AxiosRequestConfig = urlService.customer.index(page, sort, searchQuery);
+        const config: AxiosRequestConfig = urlService.customer.index(page, sort, searchQuery, perPage, noPagination);
 
         const response: AxiosResponse<{ data: Customer[]; meta: { lastPage: number; currentPage: number } }> = await http(config);
 
