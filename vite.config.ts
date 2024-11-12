@@ -43,6 +43,7 @@ export default defineConfig({
             cache: false,
             include: ['./src/**/*.vue', './src/**/*.ts'],
         }),
+
     ],
     resolve: {
         alias: {

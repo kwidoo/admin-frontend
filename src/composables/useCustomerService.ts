@@ -10,9 +10,9 @@ interface CustomerService {
     fetch(page: number, sort: { orderBy: string; order: string }, searchQuery: string, perPage: number, noPagination: boolean): Promise<{ customers: Customer[]; lastPage: number; currentPage: number }>;
     generate(type: string): Promise<string>;
     setType(customer: Customer): Customer;
-    updateType(customerId: number, customerType: 'client' | 'partner' | 'business-partner'): Promise<Customer>;
+    updateType(customerId: number, customerType: 'client' | 'partner' | 'business-partner', partnerCode: string | null): Promise<Customer>;
     fromType(before: Customer, customerType: CustomerType): Customer;
-
+    updateRuid(customerId: number, ruId: string): Promise<Customer>;
 }
 const urlService = useUrlService();
 
@@ -26,7 +26,7 @@ const customerService: CustomerService = {
     },
 
     setType(customer: Customer): Customer {
-        let type = 'Client';
+        let type = 'client';
         if (customer.isPartner) {
             type = customer.contractIsSigned ? 'business-partner' : 'partner';
         }
@@ -84,8 +84,16 @@ const customerService: CustomerService = {
         return response.data.code;
     },
 
-    async updateType(customerId: number, customerType: CustomerType): Promise<Customer> {
-        const config: AxiosRequestConfig = urlService.customer.customerType(customerId, customerType);
+    async updateType(customerId: number, customerType: CustomerType, partnerCode: string | null = null): Promise<Customer> {
+        const config: AxiosRequestConfig = urlService.customer.customerType(customerId, customerType, partnerCode);
+
+        const response: AxiosResponse<Customer> = await http(config);
+
+        return response.data;
+    },
+
+    async updateRuid(customerId: number, ruId: string): Promise<Customer> {
+        const config: AxiosRequestConfig = urlService.customer.updateRuId(customerId, ruId);
 
         const response: AxiosResponse<Customer> = await http(config);
 

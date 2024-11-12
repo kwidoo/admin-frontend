@@ -8,6 +8,7 @@
                 v-model="inputValue"
                 :required="required"
                 :readonly="readonly"
+                @change="update"
                 class="px-2 py-1 w-full border rounded-md text-xs bg-secondary text-on-primary placeholder:text-on-primary-secondary focus:bg-primary-variant focus:ring-primary-dark"
             />
             <button
@@ -25,7 +26,7 @@
                 Generate
             </button>
             <button
-                v-if="!readonly"
+                v-if="!readonly && canUpdate"
                 @click.prevent="updateInput"
                 :disabled="readonly && inputValue !== ''"
                 class="px-2 py-1 text-xs rounded-md bg-primary text-on-secondary hover:bg-primary-dark"
@@ -72,12 +73,16 @@ export default defineComponent({
             type: Boolean,
             default: true,
         },
+        canUpdate: {
+            type: Boolean,
+            default: true,
+        },
         fetchOnMount: {
             type: Boolean,
             default: false,
         },
     },
-    emits: ['update:modelValue'],
+    emits: ['update:modelValue', 'saveRuId'],
     setup(props, { emit }) {
         const inputValue = ref(props.modelValue);
 
@@ -86,8 +91,13 @@ export default defineComponent({
             emit('update:modelValue', inputValue.value);
         };
 
+        const update = () => {
+            emit('update:modelValue', inputValue.value);
+        };
+
         const updateInput = () => {
             emit('update:modelValue', inputValue.value);
+            emit('saveRuId', inputValue.value);
         };
 
         const generateInput = async () => {
@@ -122,6 +132,7 @@ export default defineComponent({
             inputValue,
             clearInput,
             updateInput,
+            update,
             generateInput,
         };
     },

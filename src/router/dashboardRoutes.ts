@@ -4,6 +4,7 @@ import Contacts from '@/pages/Auth/Contacts.vue';
 import Customers from '@/pages/Auth/Customers.vue';
 import CustomerDetail from '@/pages/Auth/CustomerDetail.vue';
 import ContactDetail from '@/pages/Auth/ContactDetail.vue';
+import Login from '@/pages/Auth/Logins.vue';
 
 const dashboardRoutes: RouteRecordRaw[] = [
     {
@@ -54,6 +55,13 @@ const dashboardRoutes: RouteRecordRaw[] = [
                 path: 'contact/:contactId?',
                 name: 'ContactDetail',
                 component: ContactDetail,
+                meta: { requiresAuth: true },
+                props: true,
+            },
+            {
+                path: 'logins',
+                name: 'Logins',
+                component: Login,
                 meta: { requiresAuth: true },
                 props: true,
             },

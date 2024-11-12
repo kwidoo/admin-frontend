@@ -50,6 +50,16 @@ class LoginUrls {
         };
     }
 
+    search(searchQuery: string): AxiosRequestConfig {
+        return {
+            url: `${this.basePath}/search`,
+            method: 'get',
+            params: {
+                searchQuery,
+            },
+        };
+    }
+
 }
 
 export default LoginUrls;

@@ -9,6 +9,7 @@ interface LoginService {
     changePassword(login: Login, password: Password): Promise<string>;
     create(customer: Customer, login: Login): Promise<Login>;
     fetchLogin(id: number): Promise<Customer>;
+    search(searchQuery: string): Promise<{ data: Login[] }>;
 }
 const urlService = useUrlService();
 
@@ -62,6 +63,14 @@ const loginService: LoginService = {
         const config: AxiosRequestConfig = urlService.login.detach(customer.id, login.id);
 
         const response: AxiosResponse<[]> = await http(config);
+
+        return response.data;
+    },
+
+    async search(searchQuery: string): Promise<{ data: Login[] }> {
+        const config: AxiosRequestConfig = urlService.login.search(searchQuery);
+
+        const response: AxiosResponse<{ data: Login[] }> = await http(config);
 
         return response.data;
     },

@@ -39,6 +39,11 @@ export default defineComponent({
             type: [Number, null],
             required: true,
         },
+        partnerCode: {
+            type: [String, null],
+            required: false,
+            default: '',
+        },
     },
     emits: ['customerTypeChanged'],
     setup(props, { emit }) {
@@ -57,7 +62,11 @@ export default defineComponent({
                     throw new Error('Customer ID is not set');
                 }
 
-                await useCustomerService.updateType(props.customerId, customerType.value);
+                await useCustomerService.updateType(
+                    props.customerId,
+                    customerType.value,
+                    props.partnerCode,
+                );
 
                 originalCustomerType.value = customerType.value;
 

@@ -61,7 +61,7 @@ export default defineComponent({
         const loading = ref<boolean>(false);
         const currentPage = ref<number>(1);
         const lastPage = ref<number>(1);
-        const perPage = ref<number>(10);
+        const perPage = ref<number>(15);
 
         const headers = ref<Header[]>([
             { key: 'id', label: t('ID') },

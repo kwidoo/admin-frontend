@@ -5,13 +5,14 @@
             :label="'Contacts'"
             :headers="headers"
             :search-field="''"
-            :enable-search="true"
+            :enable-search="!inline"
             :enable-new="true"
             :enable-edit="true"
             :enable-delete="true"
             :table-data="contactValues"
             :current-page="currentPage"
             :total-pages="lastPage"
+            :enable-per-page="!inline"
             @load-data="loadData"
             @create-new="createNewItem"
             @edit-item="editItem"
@@ -59,6 +60,7 @@ import { useToast } from 'vue-toastification';
 import type { Contact } from '@/types/interfaces';
 import { useRoute } from 'vue-router';
 import { ConfirmModal, IndexComponent, ModalComponent } from '@/components';
+import { FwbPagination } from 'flowbite-vue';
 
 interface Header {
     key: string;
@@ -78,6 +80,7 @@ export default defineComponent({
         IndexComponent,
         ConfirmModal,
         ModalComponent,
+        FwbPagination,
     },
     name: 'ContactsComponent',
     props: {
@@ -231,6 +234,10 @@ export default defineComponent({
             loading.value = true;
             await loadData({
                 page,
+                sortBy: sortByField.value,
+                sortOrder: sortOrder.value,
+                searchQuery: searchQuery.value,
+                perPage: perPage.value,
             });
             loading.value = false;
         };

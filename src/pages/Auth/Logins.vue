@@ -45,7 +45,7 @@
                 </button>
                 <confirm-modal
                     :is-modal-open="isDetachModalOpen"
-                    :text="`Are you sure you want to delete this login? <strong>${item.loginValue}</strong>`"
+                    :text="`Are you sure you want to delete this login? ${item.loginValue}`"
                     @close-modal="handleCloseModal"
                     @action="handleDetachConfirm(item)"
                 />
@@ -138,7 +138,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
+import { computed, defineComponent, onMounted, ref } from 'vue';
 import { IndexComponent, CopyInput, ConfirmModal, SearchInput } from '@/components';
 import { useLoginService, useCustomerService } from '@/composables';
 import { useLoadingStore } from '@/store';
@@ -213,6 +213,10 @@ export default defineComponent({
         const loginData = ref<Login[]>([]);
         const customerValue = ref<Customer | null>(null);
         const loadingStore = useLoadingStore();
+
+        const inline = computed((): boolean => {
+            return !!props.customer;
+        });
 
         const loadData = async () => {
             loading.value = true;
@@ -388,6 +392,7 @@ export default defineComponent({
             loginSearch,
 
             loadingStore,
+            inline,
         };
     },
 });

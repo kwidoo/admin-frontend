@@ -4,6 +4,7 @@
         <select
             v-model="inputValue"
             :id="id"
+            :disabled="readonly"
             class="px-2 py-1 w-full border rounded-md text-xs bg-secondary text-on-primary focus:bg-primary-variant focus:ring-primary-dark"
         >
             <option v-for="(optionLabel, value) in options" :key="value" :value="value">
@@ -58,6 +59,11 @@ export default defineComponent({
             default: '',
         },
         hasErrors: {
+            type: Boolean,
+            required: false,
+            default: false,
+        },
+        readonly: {
             type: Boolean,
             required: false,
             default: false,

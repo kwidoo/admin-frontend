@@ -1,13 +1,16 @@
 <template>
     <div class="form-group mt-4" :class="formClass">
         <label :for="id" class="block mb-1 text-sm font-medium">{{ label }}</label>
-        <input
-            v-model="inputValue"
-            type="text"
-            :id="id"
-            class="mt-1 block w-full px-2 py-1 border rounded-md text-xs bg-secondary text-on-primary focus:bg-primary-variant focus:ring-primary-dark"
-            :required="required"
-        />
+        <div class="flex">
+            <input
+                v-model="inputValue"
+                type="text"
+                :id="id"
+                class="block w-full px-2 py-1 border rounded-md text-xs bg-secondary text-on-primary focus:bg-primary-variant focus:ring-primary-dark"
+                :required="required"
+            />
+            <slot name="append"></slot>
+        </div>
         <div v-if="hasErrors" class="text-xs text-red-500 dark:text-red-400">
             {{ error }}
         </div>

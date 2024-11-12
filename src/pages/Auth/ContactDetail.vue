@@ -3,6 +3,7 @@
         <div v-if="!inline" class="flex gap-4 mt-4">
             <div class="form-group mt-4 w-1/3 relative">
                 <search-input
+                    :key="customerSelected?.id as number"
                     label="Customer"
                     :endpoint="`/iam/api/v1/customers`"
                     :display-fields="['firstName', 'lastName', 'referralCode']"
@@ -56,7 +57,7 @@
 <script lang="ts">
 import { defineComponent, ref, computed, onMounted, watch } from 'vue';
 import { useToast } from 'vue-toastification';
-import { useContactService } from '@/composables';
+import { useContactService, useCustomerService } from '@/composables';
 import type { Contact, Customer } from '@/types/interfaces';
 import { useRoute, useRouter } from 'vue-router';
 import { SearchInput, SelectComponent, SimpleInput } from '@/components';
@@ -69,7 +70,7 @@ export default defineComponent({
             default: null,
         },
         customerId: {
-            type: String,
+            type: [String, Number, null],
             required: false,
             default: null,
         },
@@ -118,9 +119,9 @@ export default defineComponent({
         onMounted(async () => {
             if (props.contactId) {
                 contactForm.value = await useContactService.fetchById(props.contactId);
-            }
-            if (props.customerId) {
-                contactForm.value.customerId = props.customerId as unknown as number;
+                customerSelected.value = (await useCustomerService.fetchCustomer(
+                    contactForm.value.customerId as number,
+                )) as Customer;
             }
         });
 

@@ -46,7 +46,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from 'vue';
+import { defineComponent, onMounted, ref, watch } from 'vue';
 import { debounce } from 'lodash';
 import { http } from '@/composables';
 import type { DataItem } from '@/types/interfaces';
@@ -80,6 +80,10 @@ export default defineComponent({
                 return value === null || typeof value === 'object';
             },
         },
+        additional: {
+            type: Object as PropType<Record<string, unknown>>,
+            default: () => ({}),
+        },
     },
     emits: ['update:modelValue'],
     setup(props, { emit }) {
@@ -95,6 +99,7 @@ export default defineComponent({
                         params: {
                             searchQuery: searchQuery.value,
                             noPagination: true,
+                            ...props.additional,
                         },
                     });
 
@@ -139,6 +144,13 @@ export default defineComponent({
         watch(selectedItem, (newValue) => {
             if (newValue !== props.modelValue) {
                 emit('update:modelValue', newValue);
+            }
+        });
+
+        onMounted(() => {
+            if (props.modelValue) {
+                selectedItem.value = props.modelValue;
+                searchQuery.value = formatItem(props.modelValue);
             }
         });
 

@@ -50,6 +50,16 @@ class CustomerUrls {
         };
     }
 
+    updateRuId(customerId: number | string, ruId: string): AxiosRequestConfig {
+        return {
+            url: `${this.basePath}/${customerId}/ru-id`,
+            method: 'patch',
+            data: {
+                idru: ruId,
+            },
+        };
+    }
+
     generator(type: string = 'referral_code'): AxiosRequestConfig {
         return {
             url: this.generatorPath,
@@ -58,12 +68,13 @@ class CustomerUrls {
         };
     }
 
-    customerType(customerId: number | string, customerType: CustomerType): AxiosRequestConfig {
+    customerType(customerId: number | string, customerType: CustomerType, partnerCode: string | null = null): AxiosRequestConfig {
         return {
             url: `${this.basePath}/${customerId}/customer-type`,
             method: 'patch',
             data: {
                 customerType,
+                partnerCode,
             },
         };
     }

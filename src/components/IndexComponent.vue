@@ -50,7 +50,7 @@
                 @change="emitLoadData"
                 class="text-xs border rounded-md"
             >
-                <option :value="10">10</option>
+                <option :value="15">15</option>
                 <option :value="25">25</option>
                 <option :value="50">50</option>
             </select>
@@ -109,24 +109,14 @@
                 </tbody>
             </table>
         </div>
-
-        <!-- Pagination Controls -->
         <div v-if="totalPages > 1" class="flex justify-center mt-4">
-            <button
-                @click="$emit('change-page', currentPage - 1)"
-                :disabled="currentPage === 1"
-                class="px-2 py-1 mx-1 text-xs rounded-md bg-secondary text-on-secondary hover:bg-secondary-dark disabled:opacity-50"
-            >
-                Previous
-            </button>
-            <span class="px-2 py-1 text-xs">Page {{ currentPage }} of {{ totalPages }}</span>
-            <button
-                @click="$emit('change-page', currentPage + 1)"
-                :disabled="currentPage === totalPages"
-                class="px-2 py-1 mx-1 text-xs rounded-md bg-secondary text-on-secondary hover:bg-secondary-dark disabled:opacity-50"
-            >
-                Next
-            </button>
+            <fwb-pagination
+                v-model="page"
+                :total-pages="totalPages"
+                show-icons
+                large
+                @update:model-value="changePage"
+            />
         </div>
     </div>
 </template>
@@ -135,6 +125,7 @@
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { defineComponent, computed, ref } from 'vue';
 import type { DataItem } from '@/types/interfaces';
+import { FwbPagination } from 'flowbite-vue';
 
 interface Header {
     key: string;
@@ -144,6 +135,7 @@ interface Header {
 export default defineComponent({
     components: {
         FontAwesomeIcon,
+        FwbPagination,
     },
     name: 'IndexComponent',
     props: {
@@ -199,16 +191,17 @@ export default defineComponent({
             default: 1,
         },
     },
-    emits: ['load-data', 'create-new', 'edit-item', 'delete-item', 'change-page'],
+    emits: ['load-data', 'create-new', 'edit-item', 'delete-item', 'changePage'],
     setup(props, { emit }) {
         const sortByField = ref<string>('id');
         const sortOrder = ref<'asc' | 'desc'>('desc');
         const searchQuery = ref<string>('');
-        const perPage = ref<number>(10);
+        const perPage = ref<number>(15);
+        const page = ref<number>(props.currentPage);
 
         const emitLoadData = () => {
-            // Emit load-data event with current state
             emit('load-data', {
+                page: page.value,
                 searchQuery: searchQuery.value,
                 sortBy: sortByField.value,
                 sortOrder: sortOrder.value,
@@ -230,6 +223,10 @@ export default defineComponent({
             return props.tableData;
         });
 
+        const changePage = (newPage: number) => {
+            emit('changePage', newPage);
+        };
+
         return {
             sortByField,
             sortOrder,
@@ -238,6 +235,8 @@ export default defineComponent({
             paginatedData,
             perPage,
             emitLoadData,
+            page,
+            changePage,
         };
     },
 });
