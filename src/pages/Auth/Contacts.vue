@@ -60,7 +60,6 @@ import { useToast } from 'vue-toastification';
 import type { Contact } from '@/types/interfaces';
 import { useRoute } from 'vue-router';
 import { ConfirmModal, IndexComponent, ModalComponent } from '@/components';
-import { FwbPagination } from 'flowbite-vue';
 
 interface Header {
     key: string;
@@ -80,7 +79,6 @@ export default defineComponent({
         IndexComponent,
         ConfirmModal,
         ModalComponent,
-        FwbPagination,
     },
     name: 'ContactsComponent',
     props: {
@@ -220,7 +218,6 @@ export default defineComponent({
         };
 
         const toCustomer = (contact: Contact) => {
-            console.log('toCustomer', contact);
             router.push({
                 name: 'CustomerDetail',
                 params: {

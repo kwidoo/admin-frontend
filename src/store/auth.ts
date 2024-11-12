@@ -3,6 +3,7 @@ import { defineStore } from 'pinia';
 import type { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { http } from '@/composables';
 import type { AuthResponse, AuthState } from '@/types/interfaces';
+import router from '@/router';
 
 export default defineStore('auth', {
     state: (): AuthState => ({
@@ -59,6 +60,7 @@ export default defineStore('auth', {
             // Clear token from local storage and axios headers
             localStorage.removeItem('authToken');
             delete http.defaults.headers.common.Authorization;
+            router.push('/login');
         },
 
         // Initialize the store (e.g., on app start)

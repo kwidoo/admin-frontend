@@ -4,7 +4,7 @@
         <div class="flex">
             <input
                 v-model="inputValue"
-                type="text"
+                :type="type"
                 :id="id"
                 class="block w-full px-2 py-1 border rounded-md text-xs bg-secondary text-on-primary focus:bg-primary-variant focus:ring-primary-dark"
                 :required="required"
@@ -31,6 +31,11 @@ export default defineComponent({
             type: String,
             required: true,
             default: 'copy-to-clipboard-input',
+        },
+        type: {
+            type: String,
+            required: false,
+            default: 'text',
         },
         modelValue: {
             type: [String, Number, null],

@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 const clientPort: number = Number(process.env.VITE_PORT) || 3000;
-const host: string = process.env.VITE_HOST || 'joyou.home';
+const host: string = process.env.VITE_HOST;
 const buildName: string = process.env.VITE_BUILD_NAME || 'default';
 
 export default defineConfig({

@@ -1,46 +1,29 @@
 <template>
     <div class="flex items-center justify-center min-h-screen bg-gray-100">
         <div class="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-lg">
-            <h2 class="text-2xl font-bold text-center">Login</h2>
-
+            <div class="container flex flex-wrap items-center justify-center mx-auto">
+                <!-- Logo -->
+                <a href="/" class="flex items-center">
+                    <img src="/src/assets/logo.svg" class="h-8 mr-3" alt="Logo" />
+                </a>
+            </div>
             <form @submit.prevent="login">
-                <!-- Email Field -->
-                <div class="mb-4">
-                    <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                    <input
-                        v-model="email"
-                        id="email"
-                        type="email"
-                        class="w-full px-4 py-2 mt-1 border rounded-md focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter your email"
-                        autocomplete="email"
-                        required
-                    />
-                </div>
-
-                <!-- Password Field -->
-                <div class="mb-6">
-                    <label for="password" class="block text-sm font-medium text-gray-700"
-                        >Password</label
+                <simple-input v-model="email" label="Email" id="email" type="email" required />
+                <simple-input
+                    v-model="password"
+                    label="Password"
+                    id="password"
+                    type="password"
+                    required
+                />
+                <div class="flex justify-end mt-6">
+                    <button
+                        type="submit"
+                        class="px-2 py-1 mt-4 text-xs rounded-md bg-primary text-on-secondary hover:bg-secondary-dark"
                     >
-                    <input
-                        v-model="password"
-                        id="password"
-                        type="password"
-                        class="w-full px-4 py-2 mt-1 border rounded-md focus:ring-2 focus:ring-blue-500"
-                        placeholder="Enter your password"
-                        autocomplete="current-password"
-                        required
-                    />
+                        Login
+                    </button>
                 </div>
-
-                <!-- Login Button -->
-                <button
-                    type="submit"
-                    class="w-full px-4 py-2 font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                >
-                    Login
-                </button>
 
                 <!-- Error Message -->
                 <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
@@ -53,9 +36,13 @@
 import { defineComponent, ref } from 'vue';
 import useAuthStore from '@/store/auth';
 import { useRouter } from 'vue-router';
+import SimpleInput from '@/components/SimpleInput.vue';
 
 export default defineComponent({
     name: 'LoginPage',
+    components: {
+        SimpleInput,
+    },
     setup() {
         const email = ref<string>('');
         const password = ref<string>('');

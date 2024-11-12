@@ -16,7 +16,6 @@
             @load-data="loadData"
             @create-new="createNewItem"
             @edit-item="editItem"
-            @delete-item="deleteItem"
             @change-page="changePage"
         />
     </div>
@@ -119,10 +118,9 @@ export default defineComponent({
             });
         };
 
-        const deleteItem = (itemId: number) => {
-            console.log('Deleting item with ID:', itemId);
-            // Handle deleting the item
-        };
+        // const deleteItem = (itemId: number) => {
+        //     // Handle deleting the item
+        // };
 
         const changePage = async (page: number) => {
             currentPage.value = page;
@@ -149,7 +147,7 @@ export default defineComponent({
             loadData,
             createNewItem,
             editItem,
-            deleteItem,
+            // deleteItem,
             changePage,
         };
     },

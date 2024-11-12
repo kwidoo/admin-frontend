@@ -223,7 +223,7 @@
                         class="px-2 py-1 border rounded-md text-xs bg-secondary text-on-primary focus:bg-primary-variant focus:ring-primary-dark"
                     />
                 </div>
-                <div class="form-group mt-4 w-1/4">
+                <div v-if="customer.isPartner" class="form-group mt-4 w-1/4">
                     <label for="qualificationPeriod" class="block mb-1 text-sm font-medium">
                         Qualification period:
                     </label>
@@ -236,7 +236,7 @@
                         class="px-2 py-1 w-full border rounded-md text-xs bg-secondary text-on-primary placeholder:text-on-primary-secondary focus:bg-primary-variant focus:ring-primary-dark"
                     />
                 </div>
-                <div class="form-group mt-4 w-1/4">
+                <div v-if="customer.isPartner" class="form-group mt-4 w-1/4">
                     <label for="qualificationRank" class="block mb-1 text-sm font-medium"
                         >Qualification Rank:</label
                     >
@@ -327,13 +327,24 @@
                 >
                     Cancel
                 </button>
-
-                <button
-                    @click.prevent="save"
-                    class="px-2 py-1 mt-4 text-xs rounded-md bg-primary text-on-secondary hover:bg-secondary-dark"
-                >
-                    Save
-                </button>
+                <div class="flex mt-4 items-center">
+                    <label v-if="saveError" for="force" class="block text-sm font-medium mr-2"
+                        >Force</label
+                    >
+                    <input
+                        v-if="saveError"
+                        type="checkbox"
+                        id="force"
+                        v-model="customer.force"
+                        class="px-2 py-1 mr-2 border rounded-md text-xs bg-secondary text-on-primary focus:bg-primary-variant focus:ring-primary-dark"
+                    />
+                    <button
+                        @click.prevent="save"
+                        class="px-2 py-1 text-xs rounded-md bg-primary text-on-secondary hover:bg-secondary-dark"
+                    >
+                        Save
+                    </button>
+                </div>
             </div>
         </form>
     </div>
@@ -356,6 +367,7 @@ import {
 import type { Customer, Country, CustomerType } from '@/types/interfaces';
 import Contacts from '@/pages/Auth/Contacts.vue';
 import Logins from '@/pages/Auth/Logins.vue';
+import type { AxiosError } from 'axios';
 
 export default defineComponent({
     name: 'CustomerDetails',
@@ -447,13 +459,17 @@ export default defineComponent({
             loading.value = false;
         });
 
+        const saveError = ref<AxiosError | null>(null);
         const save = async () => {
             try {
                 const response: Customer = await useCustomerService.saveCustomer(customer.value);
-                toast.success(`Customer with id ${response.id} saved successfully`);
+                toast.success(`Customer with id ${response.data.id} saved successfully`);
                 router.push({ name: 'Customers' });
             } catch (error) {
-                toast.error('Error saving customer');
+                saveError.value = error as AxiosError;
+                toast.error(
+                    (saveError.value.response?.data as object as { message: string }).message,
+                );
             }
         };
 
@@ -563,6 +579,7 @@ export default defineComponent({
             customerSelected,
             qualificationPeriod,
             checkPhone,
+            saveError,
         };
     },
 });
